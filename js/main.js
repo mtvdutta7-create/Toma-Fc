@@ -1,10 +1,10 @@
 /* ==========================================================================
-   TOMA FC RABINDRA NAGAR EAST — INTERACTIVE SCRIPTS & WHATSAPP INTEGRATION
+   TOMA FC RABINDRA NAGAR EAST — INTERACTIVE SCRIPTS (UPDATED)
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
-  initWhatsAppActions();
+  initActionButtons();
   initEnquiryForm();
   initGallery();
   initScrollAnimations();
@@ -53,51 +53,28 @@ function initNavbar() {
   });
 }
 
-/* WHATSAPP ACTION HELPER */
-const WHATSAPP_NUMBER = '919123709602';
+/* ACTION BUTTON HANDLER (CLICKABLE WITHOUT EXTERNAL WHATSAPP REDIRECT) */
+function initActionButtons() {
+  const actionBtns = document.querySelectorAll('[data-action="join"], [data-wa-action], .btn-join-action');
 
-function openWhatsApp(customText) {
-  const encodedText = encodeURIComponent(customText);
-  const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
-  window.open(waUrl, '_blank');
-}
-
-function initWhatsAppActions() {
-  const joinBtns = document.querySelectorAll('[data-wa-action="join"]');
-  const trainingBtns = document.querySelectorAll('[data-wa-action="training"]');
-  const contactBtns = document.querySelectorAll('[data-wa-action="contact"]');
-  const defaultBtns = document.querySelectorAll('[data-wa-action="default"]');
-
-  joinBtns.forEach(btn => {
+  actionBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      openWhatsApp("Hello Toma FC Rabindra Nagar East! 👋\n\nI came across your academy website and I'm interested in joining Toma FC.\n\nI would like to know more about the academy, training and admission process.\n\nThank you!");
-    });
-  });
-
-  trainingBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      openWhatsApp("Hello Toma FC Rabindra Nagar East! 👋 I’m interested in your football training programs and would like to know more.");
-    });
-  });
-
-  contactBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      openWhatsApp("Hello Toma FC Rabindra Nagar East! 👋 I would like to join TOMA FC and would like more information about the next steps.");
-    });
-  });
-
-  defaultBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      openWhatsApp("Hello Toma FC Rabindra Nagar East! 👋 I’m interested in joining the academy. I’d like to know more about the training and admission process.");
+      
+      // If contact form exists on page, scroll smoothly to it
+      const contactForm = document.getElementById('academy-enquiry-form');
+      if (contactForm) {
+        contactForm.scrollIntoView({ behavior: 'smooth' });
+        contactForm.querySelector('input')?.focus();
+      } else {
+        // Redirect to contact page
+        window.location.href = 'contact.html';
+      }
     });
   });
 }
 
-/* ENQUIRY FORM -> WHATSAPP REDIRECT */
+/* ENQUIRY FORM SUBMISSION */
 function initEnquiryForm() {
   const form = document.getElementById('academy-enquiry-form');
   if (!form) return;
@@ -105,15 +82,36 @@ function initEnquiryForm() {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const parentName = document.getElementById('parentName')?.value.trim() || 'N/A';
-    const playerName = document.getElementById('playerName')?.value.trim() || 'N/A';
-    const age = document.getElementById('playerAge')?.value.trim() || 'N/A';
-    const phone = document.getElementById('userPhone')?.value.trim() || 'N/A';
-    const message = document.getElementById('userMessage')?.value.trim() || 'N/A';
+    const parentName = document.getElementById('parentName')?.value.trim() || 'Parent/Guardian';
+    const playerName = document.getElementById('playerName')?.value.trim() || 'Player';
 
-    const formattedMsg = `Hello Toma FC Rabindra Nagar East! 👋\n\nI would like to enquire about joining the academy.\n\nParent/Guardian: ${parentName}\nPlayer: ${playerName}\nAge: ${age}\nPhone: ${phone}\n\nMessage:\n${message}\n\nThank you!`;
+    // Show elegant success notification
+    let alertBox = document.getElementById('form-success-alert');
+    if (!alertBox) {
+      alertBox = document.createElement('div');
+      alertBox.id = 'form-success-alert';
+      alertBox.style.cssText = `
+        background-color: #061A12;
+        color: #C5A880;
+        border: 1px solid #C5A880;
+        padding: 1.2rem 1.5rem;
+        margin-top: 1.5rem;
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        text-align: center;
+        border-radius: 4px;
+        animation: fadeIn 0.4s ease;
+      `;
+      form.appendChild(alertBox);
+    }
 
-    openWhatsApp(formattedMsg);
+    alertBox.innerHTML = `<strong>Thank You, ${parentName}!</strong><br>Your enquiry for <strong>${playerName}</strong> has been submitted successfully to TOMA FC Rabindra Nagar East. Our team will reach out to you soon.`;
+
+    form.reset();
+
+    setTimeout(() => {
+      alertBox.style.display = 'none';
+    }, 8000);
   });
 }
 
